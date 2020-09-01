@@ -1,4 +1,38 @@
 $(function () {
+
+    let userId=null;
+    //console.dir(window.location.href)
+    let params=window.location.href.queryURLParams();
+    //console.log(params);
+    //点击编辑进到此页，在params中是有ID
+    //直接点击添加员工进来，params中没有ID
+    if(params.hasOwnProperty("id")){
+        userId=params.id;
+        //根据ID获取用户的信息，实现数据的回显
+        getBaseInfo();
+    }
+
+    // async 修饰的函数，最终返回的是promise
+    async function getBaseInfo(){
+        let result=await axios.get("/user/info",{
+            params:{userId}
+        })
+        if(result.code === 0){
+            //给表单中赛数据，实现数据的回显
+            result=result.data;
+            $(".username").val(result.name);
+            result.sex == 0 ? $("#man").prop('checked',true) : $("#woman").prop('checked',true);
+            $(".useremail").val(result.email);
+            $(".userphone").val(result.phone);
+            $(".userdepartment").val(result.departmentId);
+            $(".userjob").val(result.jobId);
+            $(".userdesc").val(result.desc);
+            return;
+        }
+        alert("编辑不成功，可能是网络不给力...")
+        userId=null;
+    }
+
     // 初始化部门和职务的数据
     initDeptAndJob();
     async function initDeptAndJob() {
@@ -90,7 +124,19 @@ $(function () {
             jobId:$(".userjob").val(),
             desc:$(".userdesc").val().trim()
         }
-        //console.log(params)
+       //判断是编辑还是新增
+       if(userId){
+           params.userId=userId;
+           //编辑
+           let result=await axios.post("/user/update",params)
+           if(result.code === 0){
+               alert("修改数据成功")
+               window.location.href="userlist.html"
+               return;
+           }
+           alert("网络不给力，稍后再试~")
+           return; //如果编辑了，程序就结束了，写个return
+        }
         //实现新增
         let result = await axios.post("/user/add",params)
         if(result.code === 0){
