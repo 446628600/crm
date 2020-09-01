@@ -40,7 +40,7 @@ $(function(){
                 </h3>
                 <nav class="item">
                     <a href="page/userlist.html" target="iframeBox">员工列表</a>
-                    <a href="page/useradd.html" target="iframeBox">员工列表</a>
+                    <a href="page/useradd.html" target="iframeBox">新增员工</a>
                 <nav>
             </div>
             `
@@ -126,8 +126,6 @@ $(function(){
         //点击切换
         $navBoxList.click(function(){
             let index =$(this).index();
-            $(this).addClass("active").siblings().removeClass("active");
-            handGroup(index);
             let text =$(this).html().trim()
             if((text === "客户管理") && !/customerall/.test(power) || (text === "组织结构") && !/(userhandle|departhandle|jobhandle)/.test(power)){
                 alert("没有权限访问！！！")
@@ -151,19 +149,18 @@ $(function(){
     async function init(){
         //判断当前用户有没有登录
         let result=await axios.get("/user/login")
-        console.log(result)
+        // console.log(result)
         if(result.code != 0){
             alert("你还没有登录，请先登录...")
             window.location.href="login.html";
             return;
         }
-        
         //代表你登录成功了
         let [power,baseInfo]=await axios.all([
             axios.get("/user/power"),
             axios.get("user/info")
         ])
-        console.log(power)
+        // console.log(power)
         // console.log(baseInfo)
         
         power.code === 0 ?  power=power.power : null;
